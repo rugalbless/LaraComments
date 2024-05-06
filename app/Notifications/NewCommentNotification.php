@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Notifications;
 
+use App\Models\Comment;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -17,11 +18,12 @@ class NewCommentNotification extends Notification
     /**
      * Create a new notification instance.
      */
-    public function __construct()
+    public function __construct(
+        public Comment $comment,
+    )
     {
         //
     }
-
     /**
      * Get the notification's delivery channels.
      *
@@ -38,9 +40,11 @@ class NewCommentNotification extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->subject("Novo comentário de {$this->comment->user->name}")
+                    ->greeting("Novo comentário de {$this->comment->user->name}")
+                    ->line(Str::limit($this->comment->message, 50))
+                    ->action('Ver comentário' , route('comments.index'))
+                    ->line('Obrigado por usar a aplicação !');
     }
 
     /**
