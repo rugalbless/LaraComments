@@ -63,9 +63,13 @@ class CommentController extends Controller
         // Criar o comentário associado ao usuário autenticado
         $request->user()->comments()->create($commentData);
 
+        // Mensagem flash para exibir na dashboard
+        session()->flash('comment_message', 'Comentário postado com sucesso!');
+
         // Redirecionar de volta para a lista de comentários
         return to_route('comments.index');
     }
+
 
 
     /**
