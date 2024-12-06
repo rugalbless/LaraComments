@@ -35,18 +35,38 @@ class CommentController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
+        // Validação
         $validated = $request->validate([
             'message' => 'required|max:255|string',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048', // Validação da imagem
         ], [
-            'message.required'=>'O campo de comentários é obrigatorio',
-            'message.string'=>'O campo de comentários deve conter um texto válido',
-            'message.255'=>'O campo de comentários não pode ter mais que 255 caracteres',
+            'message.required' => 'O campo de comentários é obrigatório',
+            'message.string' => 'O campo de comentários deve conter um texto válido',
+            'message.max' => 'O campo de comentários não pode ter mais que 255 caracteres',
+            'image.image' => 'O arquivo deve ser uma imagem válida',
+            'image.mimes' => 'A imagem deve ser dos tipos: jpeg, png, jpg, gif, svg',
+            'image.max' => 'A imagem não pode ser maior que 2MB',
         ]);
 
-        $request->user()->comments()->create($validated);
+        // Criar o comentário
+        $commentData = [
+            'message' => $validated['message'],
+        ];
 
+        // Se uma imagem for enviada, processa o upload
+        if ($request->hasFile('image')) {
+            // Armazenar a imagem no diretório 'comments' em 'public'
+            $imagePath = $request->file('image')->store('comments', 'public');
+            $commentData['image_path'] = $imagePath; // Armazenar o caminho da imagem
+        }
+
+        // Criar o comentário associado ao usuário autenticado
+        $request->user()->comments()->create($commentData);
+
+        // Redirecionar de volta para a lista de comentários
         return to_route('comments.index');
     }
+
 
     /**
      * Display the specified resource.

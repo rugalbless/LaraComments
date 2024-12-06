@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
     class Comment extends Model
     {
-        protected $fillable = ['user_id', 'message'];
+        protected $fillable = ['user_id', 'message', 'image_path'];
 
         protected $dispatchesEvents = [
             'created' => CommentCreatedEvent::class,
